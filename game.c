@@ -83,6 +83,7 @@ void createBoard(char tabuleiro[3][3])
     }
 }
 
+
 void menu();
 
 void *multiplayerGame(void *arg)
@@ -100,222 +101,150 @@ void *multiplayerGame(void *arg)
     int posicaoJogada;
     int rodada = 0;
     int estadoDeJogo = 1;
-    int opcaoReinicio;
-    int gaming = 1;
+    int valid_play = 0;
+    int played;
+    int numberPlayed;
     int posicoes[9][2] = {{2, 0}, {2, 1}, {2, 2}, {1, 0}, {1, 1}, {1, 2}, {0, 0}, {0, 1}, {0, 2}};
 
     char errorMessage[255] = {'\x00'};
-
     char *nomeJogadorAtual;
-
-    char command[BUFFER_SZ];
-    int number;
-    int valid_play = 0;
-
     char message[BUFFER_SZ] = {};
 
-    int receive = recv(sockfd, message, BUFFER_SZ, MSG_PEEK);
+    int receive = recv(sockfd, message, BUFFER_SZ, 0);
 
     if (receive > 0) {
         setbuf(stdin, 0);
         trim_lf(message, strlen(message));
         sscanf(message, "%s", &nomeJogador2[0]);
 
-        while (gaming == 1)
+        setbuf(stdout, 0);
+        setbuf(stdin, 0);
+
+        bzero(message, BUFFER_SZ);
+
+        createBoard(tabuleiro);
+        rodada = 0;
+
+        while (rodada < 9 && estadoDeJogo == 1)
         {
-            createBoard(tabuleiro);
-            rodada = 0;
-
-            while (rodada < 9 && estadoDeJogo == 1)
+            if (turnoDoJogador == 1)
             {
-                if (turnoDoJogador == 1)
-                {
-                    nomeJogadorAtual = (char *)&nomeJogador1;
-                } 
-                else
-                {
-                    nomeJogadorAtual = (char *)&nomeJogador2;
-                }
+                nomeJogadorAtual = (char *)&nomeJogador1;
+            } 
+            else
+            {
+                nomeJogadorAtual = (char *)&nomeJogador2;
+            }
 
-                showBoard(tabuleiro, (char *)&errorMessage);
+            showBoard(tabuleiro, (char *)&errorMessage);
 
-                setbuf(stdout, 0);
-                printf("\nRodada: %d", rodada);
-                printf("\nJogador: %s\n", nomeJogadorAtual);
+            printf("\nRodada: %d", rodada);
+            printf("\nJogador: %s\n", nomeJogadorAtual);
 
-                while (valid_play == 0)
-                {
-                    command[0] = '\x00';
-
-                    int receive = recv(sockfd, message, BUFFER_SZ, MSG_PEEK);
-
-                    if (receive > 0) {
-                        valid_play = 1;
-
-                        setbuf(stdin, 0);
-                        trim_lf(message, strlen(message));
-                        sscanf(message, "%s %i", &command[0], &number);
-
-                        if (strcmp(command, "vez") == 0)
-                        {
-                            if (number == 1)
-                            {
-                                setbuf(stdout, 0);
-                                printf("Digite uma posicao: ");
-                                scanf("%d", &posicaoJogada);
-
-                                if (posicaoJogada < 1 || posicaoJogada > 9) {
-                                    errorMessage[0] = '\x70';
-                                    errorMessage[1] = '\x6F';
-                                    errorMessage[2] = '\x73';
-                                    errorMessage[3] = '\x69';
-                                    errorMessage[4] = '\x63';
-                                    errorMessage[5] = '\x61';
-                                    errorMessage[6] = '\x6F';
-                                    valid_play = 0;
-                                }
-
-                                linhaJogada = posicoes[posicaoJogada - 1][0];
-                                colunaJogada = posicoes[posicaoJogada - 1][1];
-
-                                if (tabuleiro[linhaJogada][colunaJogada] != '-')
-                                {
-                                    errorMessage[0] = '\x70';
-                                    errorMessage[1] = '\x6F';
-                                    errorMessage[2] = '\x73';
-                                    errorMessage[3] = '\x69';
-                                    errorMessage[4] = '\x63';
-                                    errorMessage[5] = '\x61';
-                                    errorMessage[6] = '\x6F';
-                                    errorMessage[7] = '\x20';
-                                    errorMessage[8] = '\x6A';
-                                    errorMessage[9] = '\x61';
-                                    errorMessage[10] = '\x20';
-                                    errorMessage[11] = '\x65';
-                                    errorMessage[12] = '\x6D';
-                                    errorMessage[13] = '\x20';
-                                    errorMessage[14] = '\x75';
-                                    errorMessage[15] = '\x73';
-                                    errorMessage[16] = '\x6F';
-                                    valid_play = 0;
-                                }
-
-                                if (valid_play == 1)
-                                {
-                                    bzero(message, BUFFER_SZ);
-                                    sprintf(message, "play %i", posicaoJogada);
-                                    send(sockfd, message, strlen(message), 0);
-                                }
-                            }
-                            else if (number == 2)
-                            {
-                                bzero(message, BUFFER_SZ);
-
-                                setbuf(stdout, 0);
-                                printf("O outro jogador esta jogando...\n");
-
-                                int played = 0;
-                                int numberPlayed;
-
-                                while (played == 0)
-                                {
-                                    setbuf(stdin, 0);
-                                    int receive = recv(sockfd, message, BUFFER_SZ, MSG_PEEK);
-
-                                    if (receive > 0) {
-                                        setbuf(stdin, 0);
-                                        trim_lf(message, strlen(message));
-                                        sscanf(message, "%i", &numberPlayed);
-
-                                        linhaJogada = posicoes[numberPlayed - 1][0];
-                                        colunaJogada = posicoes[numberPlayed - 1][1];
-
-                                        played = 1;
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            printf("\nJogada invalida!");
-                            valid_play = 0;
-                        }
-                    }
-                    else
-                    {
-                        valid_play = 0;
-                    }
-                }
-                
+            while (valid_play == 0)
+            {
                 bzero(message, BUFFER_SZ);
 
-                if (turnoDoJogador == 1)
-                {
-                    tabuleiro[linhaJogada][colunaJogada] = 'X';
-                    turnoDoJogador = 2;
-                } 
-                else
-                {
-                    tabuleiro[linhaJogada][colunaJogada] = 'O';
-                    turnoDoJogador = 1;
-                }
+                int receive = recv(sockfd, message, BUFFER_SZ, 0);
 
-                for (iterator = 0; iterator < 3; iterator++)
-                {
-                    if (
-                        (
-                            (tabuleiro[iterator][0] == tabuleiro[iterator][1]) && (tabuleiro[iterator][1] == tabuleiro[iterator][2]) && tabuleiro[iterator][0] != '-'
-                        )
-                            ||
-                        (
-                            (tabuleiro[0][iterator] == tabuleiro[1][iterator]) && (tabuleiro[1][iterator] == tabuleiro[2][iterator]) && tabuleiro[0][iterator] != '-'
-                        )
-                    )
+                if (receive > 0) {
+                    valid_play = 1;
+
+                    setbuf(stdin, 0);
+                    setbuf(stdout, 0);
+
+                    if (strcmp(message, "vez1\n") == 0)
                     {
-                        estadoDeJogo = 0;
+                        printf("Digite uma posicao: ");
+                        scanf("%d", &posicaoJogada);
+
+
+                        linhaJogada = posicoes[posicaoJogada - 1][0];
+                        colunaJogada = posicoes[posicaoJogada - 1][1];
+
+
+                        if (valid_play == 1)
+                        {
+                            sprintf(message, "play %i\n", posicaoJogada);
+                            send(sockfd, message, strlen(message), 0);
+                            bzero(message, BUFFER_SZ);
+                        }
+                        
+                    }
+                    else if (strcmp(message, "vez2\n") == 0)
+                    {
+                        printf("O outro jogador esta jogando...\n");
+
+                        played = 0;
+
+                        while (played == 0)
+                        {
+                            int receive = recv(sockfd, message, BUFFER_SZ, 0);
+
+                            if (receive > 0) {
+                                sscanf(message, "%i", &numberPlayed);
+
+                                linhaJogada = posicoes[numberPlayed - 1][0];
+                                colunaJogada = posicoes[numberPlayed - 1][1];
+
+                                played = 1;
+                            }
+                        }
+
+                        valid_play = 1;
                     }
                 }
+                else
+                {
+                    valid_play = 0;
+                }
+            }
 
+            if (turnoDoJogador == 1)
+            {
+                tabuleiro[linhaJogada][colunaJogada] = 'X';
+                turnoDoJogador = 2;
+            } 
+            else
+            {
+                tabuleiro[linhaJogada][colunaJogada] = 'O';
+                turnoDoJogador = 1;
+            }
+
+            for (iterator = 0; iterator < 3; iterator++)
+            {
                 if (
                     (
-                        (tabuleiro[0][0] == tabuleiro[1][1]) && (tabuleiro[1][1] == tabuleiro[2][2]) && tabuleiro[0][0] != '-'
+                        (tabuleiro[iterator][0] == tabuleiro[iterator][1]) && (tabuleiro[iterator][1] == tabuleiro[iterator][2]) && tabuleiro[iterator][0] != '-'
                     )
                         ||
                     (
-                        (tabuleiro[0][2] == tabuleiro[1][1]) && (tabuleiro[1][1] == tabuleiro[2][0]) && tabuleiro[0][2] != '-'
+                        (tabuleiro[0][iterator] == tabuleiro[1][iterator]) && (tabuleiro[1][iterator] == tabuleiro[2][iterator]) && tabuleiro[0][iterator] != '-'
                     )
                 )
                 {
                     estadoDeJogo = 0;
                 }
-
-                rodada++;
-                valid_play = 0;
             }
 
-            showBoard(tabuleiro, (char *)&errorMessage);
-
-            printf("\nO jogador '%s' venceu!", nomeJogadorAtual);
-
-            printf("\nFim de jogo!\n");
-            printf("\nDeseja reiniciar o jogo?");
-            printf("\n1 - Sim");
-            printf("\n2 - Nao");
-            printf("\nEscolha uma opcao e tecle ENTER: ");
-
-            scanf("%d", &opcaoReinicio);
-
-
-            switch (opcaoReinicio)
+            if (
+                (
+                    (tabuleiro[0][0] == tabuleiro[1][1]) && (tabuleiro[1][1] == tabuleiro[2][2]) && tabuleiro[0][0] != '-'
+                )
+                    ||
+                (
+                    (tabuleiro[0][2] == tabuleiro[1][1]) && (tabuleiro[1][1] == tabuleiro[2][0]) && tabuleiro[0][2] != '-'
+                )
+            )
             {
-                case 1:
-                    estadoDeJogo = 1;
-                    break;
-                case 2:
-                    menu();
-                    break;
+                estadoDeJogo = 0;
             }
+
+            rodada++;
+            valid_play = 0;
+            bzero(message, BUFFER_SZ);
         }
+        
     }
 
     return NULL;
@@ -367,9 +296,10 @@ void recv_msg_handler()
 
                 str_overwrite_stdout();
             }
-            else if (strcmp(message, "start game") == 0)
+            else if (strcmp(message, "start game\n") == 0)
             {
                 pthread_cancel(lobby_thread);
+                // pthread_kill(recv_msg_thread, SIGUSR1);   
                 
                 jogador = 1;
                 if (pthread_create(&multiplayer_game, NULL, (void*)multiplayerGame, NULL) != 0) {
@@ -377,12 +307,14 @@ void recv_msg_handler()
                     exit(EXIT_FAILURE);
                 }
                 pthread_detach(pthread_self());
+                pthread_cancel(recv_msg_thread);
 
-                str_overwrite_stdout();
+                // pthread_kill(lobby_thread, SIGUSR1);   
             }
-            else if (strcmp(message, "start game 2") == 0)
+            else if (strcmp(message, "start game2\n") == 0)
             {
                 pthread_cancel(lobby_thread);
+                // pthread_kill(recv_msg_thread, SIGUSR1);   
                 
                 jogador = 2;
                 if (pthread_create(&multiplayer_game, NULL, (void*)multiplayerGame, NULL) != 0) {
@@ -390,8 +322,9 @@ void recv_msg_handler()
                     exit(EXIT_FAILURE);
                 }
                 pthread_detach(pthread_self());
+                pthread_cancel(recv_msg_thread);
 
-                str_overwrite_stdout();
+                // pthread_kill(lobby_thread, SIGUSR1);   
             }
             else
             {

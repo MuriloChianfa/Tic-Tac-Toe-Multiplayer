@@ -336,7 +336,7 @@ void *handle_client(void *arg)
                         roomUid--;
                     }
                 }
-                else if (strcmp(command, "startgame") == 0)
+                else if (strcmp(command, "start") == 0)
                 {
                     int startgame = 0;
                     room_t *room_game;
@@ -387,30 +387,40 @@ void *handle_client(void *arg)
                             }
                         }
 
+                        sleep(1);
+                        
                         bzero(buffer, BUFFER_SZ);
-                        sprintf(buffer, "start game");
+                        sprintf(buffer, "start game\n");
                         send_message(buffer, room_game->player1->uid);
 
-                        bzero(buffer, BUFFER_SZ);
-                        sprintf(buffer, "%s", room_game->player2->name);
-                        send_message(buffer, room_game->player1->uid);
+                        sleep(0.1);
 
                         bzero(buffer, BUFFER_SZ);
-                        sprintf(buffer, "start game 2");
-                        send_message(buffer, room_game->player2->uid);
-
-                        bzero(buffer, BUFFER_SZ);
-                        sprintf(buffer, "%s", room_game->player1->name);
+                        sprintf(buffer, "start game2\n");
                         send_message(buffer, room_game->player2->uid);
 
                         sleep(1);
 
                         bzero(buffer, BUFFER_SZ);
-                        sprintf(buffer, "vez 1");
+                        sprintf(buffer, "%s\n", room_game->player2->name);
                         send_message(buffer, room_game->player1->uid);
 
+                        sleep(0.1);
+
                         bzero(buffer, BUFFER_SZ);
-                        sprintf(buffer, "vez 2");
+                        sprintf(buffer, "%s\n", room_game->player1->name);
+                        send_message(buffer, room_game->player2->uid);
+
+                        sleep(1);
+
+                        bzero(buffer, BUFFER_SZ);
+                        sprintf(buffer, "vez1\n");
+                        send_message(buffer, room_game->player1->uid);
+
+                        sleep(0.2);
+
+                        bzero(buffer, BUFFER_SZ);
+                        sprintf(buffer, "vez2\n");
                         send_message(buffer, room_game->player2->uid);
                     }
                 }
@@ -432,28 +442,21 @@ void *handle_client(void *arg)
                                     break;
                                 }
 
-                                if (rooms[j]->game->turnoDoJogador != cli->uid)
-                                {
-                                    bzero(buffer, BUFFER_SZ);
-                                    sprintf(buffer, "[SERVER] ainda nao e sua vez\n");
-                                    send_message(buffer, cli->uid);
-                                    break;
-                                }
-
                                 setbuf(stdin, 0);
                                 bzero(buffer, BUFFER_SZ);
                                 sprintf(buffer, "%i", number);
-                                send_message(buffer, rooms[j]->player2->uid);
 
                                 int linhaJogada = posicoes[number - 1][0];
                                 int colunaJogada = posicoes[number - 1][1];
                                 if (rooms[j]->game->turnoDoJogador == rooms[j]->player1->uid)
                                 {
+                                    send_message(buffer, rooms[j]->player2->uid);
                                     rooms[j]->game->tabuleiro[linhaJogada][colunaJogada] = 'X';
                                     rooms[j]->game->turnoDoJogador = rooms[j]->player2->uid;
                                 } 
                                 else if (rooms[j]->game->turnoDoJogador == rooms[j]->player2->uid)
                                 {
+                                    send_message(buffer, rooms[j]->player1->uid);
                                     rooms[j]->game->tabuleiro[linhaJogada][colunaJogada] = 'O';
                                     rooms[j]->game->turnoDoJogador = rooms[j]->player1->uid;
                                 }
@@ -491,24 +494,26 @@ void *handle_client(void *arg)
 
                                 if (rooms[j]->game->turnoDoJogador == rooms[j]->player1->uid)
                                 {
-                                    setbuf(stdin, 0);
                                     bzero(buffer, BUFFER_SZ);
-
-                                    sprintf(buffer, "vez 1");
+                                    sprintf(buffer, "vez1\n");
                                     send_message(buffer, rooms[j]->player1->uid);
 
-                                    sprintf(buffer, "vez 2");
+                                    sleep(0.5);
+
+                                    bzero(buffer, BUFFER_SZ);
+                                    sprintf(buffer, "vez2\n");
                                     send_message(buffer, rooms[j]->player2->uid);
                                 }
                                 else if (rooms[j]->game->turnoDoJogador == rooms[j]->player2->uid)
                                 {
-                                    setbuf(stdin, 0);                  
                                     bzero(buffer, BUFFER_SZ);
-
-                                    sprintf(buffer, "vez 2");
+                                    sprintf(buffer, "vez2\n");
                                     send_message(buffer, rooms[j]->player1->uid);
 
-                                    sprintf(buffer, "vez 1");
+                                    sleep(0.5);
+
+                                    bzero(buffer, BUFFER_SZ);
+                                    sprintf(buffer, "vez1\n");
                                     send_message(buffer, rooms[j]->player2->uid);
                                 }
 
