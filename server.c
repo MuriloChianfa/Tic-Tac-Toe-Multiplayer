@@ -492,6 +492,39 @@ void *handle_client(void *arg)
 
                                 sleep(1);
 
+                                if (rooms[j]->game->estadoDeJogo == 0)
+                                {
+                                    if (rooms[j]->game->turnoDoJogador == rooms[j]->player1->uid)
+                                    {
+                                        bzero(buffer, BUFFER_SZ);
+                                        sprintf(buffer, "win1\n");
+                                        send_message(buffer, rooms[j]->player1->uid);
+
+                                        sleep(0.5);
+
+                                        send_message(buffer, rooms[j]->player2->uid);
+                                    }
+                                    else if (rooms[j]->game->turnoDoJogador == rooms[j]->player2->uid)
+                                    {
+                                        bzero(buffer, BUFFER_SZ);
+                                        sprintf(buffer, "win2\n");
+                                        send_message(buffer, rooms[j]->player1->uid);
+
+                                        sleep(0.5);
+
+                                        send_message(buffer, rooms[j]->player2->uid);
+                                    }
+
+                                    bzero(buffer, BUFFER_SZ);
+                                    sprintf(buffer, "ok");
+                                    send_message(buffer, rooms[j]->player1->uid);
+
+                                    sleep(0.5);
+
+                                    send_message(buffer, rooms[j]->player2->uid);
+                                    break;
+                                }
+
                                 if (rooms[j]->game->turnoDoJogador == rooms[j]->player1->uid)
                                 {
                                     bzero(buffer, BUFFER_SZ);

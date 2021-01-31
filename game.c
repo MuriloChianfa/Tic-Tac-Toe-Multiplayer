@@ -86,6 +86,10 @@ void createBoard(char tabuleiro[3][3])
 
 void menu();
 
+void *lobby(void *arg);
+
+void recv_msg_handler();
+
 void *multiplayerGame(void *arg)
 {
     int turnoDoJogador;
@@ -243,6 +247,45 @@ void *multiplayerGame(void *arg)
             rodada++;
             valid_play = 0;
             bzero(message, BUFFER_SZ);
+        }
+
+        bzero(message, BUFFER_SZ);
+
+        int receive = recv(sockfd, message, BUFFER_SZ, 0);
+
+        if (receive > 0) {
+            setbuf(stdin, 0);
+            setbuf(stdout, 0);
+
+            showBoard(tabuleiro, (char *)&errorMessage);
+
+
+            if (strcmp(message, "win1\n") == 0)
+            {
+                printf("\nO jogador '%s' venceu!", nomeJogadorAtual);
+            }
+            else if (strcmp(message, "win2\n") == 0)
+            {
+                printf("\nO jogador '%s' venceu!", nomeJogadorAtual);
+            }
+
+            printf("\nFim de jogo!\n");
+
+            sleep(6);
+
+            if (pthread_create(&lobby_thread, NULL, &lobby, NULL) != 0) {
+                printf("ERROR: pthread\n");
+                return NULL;
+            }
+
+            if (pthread_create(&recv_msg_thread, NULL, (void*)recv_msg_handler, NULL) != 0) {
+                printf("ERROR: pthread\n");
+                return NULL;
+            }
+
+            pthread_detach(pthread_self());
+            pthread_cancel(multiplayer_game);
+
         }
         
     }
