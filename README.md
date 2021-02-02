@@ -15,10 +15,6 @@ $ ./server [server_port]
 $ ./game
 ```
 
-Game and client:
-
-![Alt text](images/image1.png)
-
 Player 1 creates the lobby, and player 2 enters:
 
 ![Alt text](images/image3.png)
