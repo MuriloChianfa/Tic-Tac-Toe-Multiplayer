@@ -6,7 +6,7 @@
 - Multiplayer :heavy_check_mark:
 - Also, you can write by opening an Issue and also solve a current issue if possible.
 - Fork this project to your Github acoount.
-- This software is created under [MIT License](https://google.com.br/)
+- This software is created under [MIT License](https://github.com/MuriloChianfa/Tic-Tac-Toe-Multiplayer/blob/main/LICENSE)
 
 To start the server and client: 
 ```bash
