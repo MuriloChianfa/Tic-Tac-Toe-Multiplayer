@@ -378,6 +378,7 @@ void *handle_client(void *arg)
                         room_game->game->estadoDeJogo = 1;
                         room_game->game->rodada = 0;
                         room_game->game->turnoDoJogador = room_game->player1->uid;
+                        strcpy(room_game->state, "playing now");
 
                         for (int linha = 0; linha < 3; linha++)
                         {
@@ -494,6 +495,8 @@ void *handle_client(void *arg)
 
                                 if (rooms[j]->game->estadoDeJogo == 0)
                                 {
+                                    strcpy(rooms[j]->state, "waiting start");
+
                                     if (rooms[j]->game->turnoDoJogador == rooms[j]->player1->uid)
                                     {
                                         bzero(buffer, BUFFER_SZ);
